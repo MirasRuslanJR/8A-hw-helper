@@ -20,7 +20,6 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
   },
-  "homepage": "https://mirasruslanjr.github.io/8A-hw-helper/",
   "eslintConfig": {
     "extends": [
       "react-app",
