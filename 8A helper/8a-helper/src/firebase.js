@@ -1,8 +1,7 @@
-import { initializeApp } from "firebase/app"; // Инициализация Firebase
-import { getAuth } from "firebase/auth"; // Для аутентификации
-import { getFirestore } from "firebase/firestore"; // Для базы данных Firestore
+import { initializeApp } from "firebase/app";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
 
-// Твоя конфигурация Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyCAKyRrgqXlxjT79yVX9yS-MyuguA0-K5Q",
   authDomain: "site-helperfor8a.firebaseapp.com",
@@ -16,9 +15,47 @@ const firebaseConfig = {
 // Инициализация Firebase
 const app = initializeApp(firebaseConfig);
 
-// Инициализация сервисов Firebase (аутентификация и база данных)
-const auth = getAuth(app); // Аутентификация
-const db = getFirestore(app); // База данных Firestore
+// Инициализация аутентификации и базы данных
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Экспортируем auth и db для использования в других файлах
-export { auth, db };
+// Пример работы с коллекцией
+const getAllHomeworks = async () => {
+  try {
+    const homeworkCollectionRef = collection(db, "homeworks"); // db передается корректно
+    const snapshot = await getDocs(homeworkCollectionRef);
+    const homeworkList = snapshot.docs.map(doc => doc.data()); // Получаем данные из всех документов
+    return homeworkList;
+  } catch (error) {
+    console.error("Ошибка при получении данных:", error);
+  }
+};
+
+// Пример работы с документом
+const getHomeworkById = async (homeworkId) => {
+  try {
+    const homeworkDocRef = doc(db, "homeworks", homeworkId);  // Пример получения документа по ID
+    const snapshot = await getDoc(homeworkDocRef);
+    if (snapshot.exists()) {
+      return snapshot.data();
+    } else {
+      console.log("Документ не найден");
+      return null;
+    }
+  } catch (error) {
+    console.error("Ошибка при получении документа:", error);
+  }
+};
+
+// Экспорт всех необходимых функций
+export {
+  auth,
+  db,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  doc,
+  getDoc,
+  setDoc,
+  getAllHomeworks,
+  getHomeworkById
+};

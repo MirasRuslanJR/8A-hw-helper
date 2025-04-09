@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
-import { initializeApp } from "firebase/app";
+import './App.css';
+import './index.css';
 import {
-  getAuth,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
+  auth,
+  db,
   createUserWithEmailAndPassword,
-  signOut,
-} from "firebase/auth";
+  signInWithEmailAndPassword,
+  doc,
+  getDoc,
+  setDoc,
+} from './firebase';
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { initializeApp } from "firebase/app";  // Добавь это в начале файла
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyCAKyRrgqXlxjT79yVX9yS-MyuguA0-K5Q",
@@ -19,7 +25,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
 
 export default function HomeworkHelper() {
   const [user, setUser] = useState(null);
@@ -50,47 +55,54 @@ export default function HomeworkHelper() {
       { id: 'tue8', time: '14:35-15:15', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '212' }
     ],
     'Среда': [
-      { time: '08:30-09:10', subject: 'Қазақ тілі мен әдебиеті', teacher: 'Тажигалиева З.', room: '232' },
-      { time: '09:25-10:05', subject: 'Физика', teacher: 'Мусагалиева Э.', room: '231' },
-      { time: '10:10-10:50', subject: 'Орыс тілі мен әд.', teacher: 'Унгаралиева Э.', room: '210' },
-      { time: '11:00-11:40', subject: 'Орыс тілі мен әд.', teacher: 'Унгаралиева Э.', room: '210' },
-      { time: '11:45-12:25', subject: 'Химия', teacher: 'Ишанова Г.', room: '125' },
-      { time: '12:45-13:25', subject: 'Химия', teacher: 'Ишанова Г.', room: '125' },
-      { time: '13:45-14:25', subject: 'География', teacher: 'Бегжанова М.', room: '130' },
-      { time: '14:35-15:15', subject: 'География', teacher: 'Бегжанова М.', room: '130' }
+      { id: 'wed1', time: '08:30-09:10', subject: 'Қазақ тілі мен әдебиеті', teacher: 'Тажигалиева З.', room: '232' },
+      { id: 'wed2', time: '09:25-10:05', subject: 'Физика', teacher: 'Мусагалиева Э.', room: '231' },
+      { id: 'wed3', time: '10:10-10:50', subject: 'Орыс тілі мен әд.', teacher: 'Унгаралиева Э.', room: '210' },
+      { id: 'wed4', time: '11:00-11:40', subject: 'Орыс тілі мен әд.', teacher: 'Унгаралиева Э.', room: '210' },
+      { id: 'wed5', time: '11:45-12:25', subject: 'Химия', teacher: 'Ишанова Г.', room: '125' },
+      { id: 'wed6', time: '12:45-13:25', subject: 'Химия', teacher: 'Ишанова Г.', room: '125' },
+      { id: 'wed7', time: '13:45-14:25', subject: 'География', teacher: 'Бегжанова М.', room: '130' },
+      { id: 'wed8', time: '14:35-15:15', subject: 'География', teacher: 'Бегжанова М.', room: '130' }
     ],
     'Четверг': [
-      { time: '08:30-09:10', subject: 'Өнер', teacher: 'Кульбекова Ж.', room: '136' },
-      { time: '09:25-10:05', subject: 'Өнер', teacher: 'Кульбекова Ж.', room: '136' },
-      { time: '10:10-10:50', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '307' },
-      { time: '11:00-11:40', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '307' },
-      { time: '11:45-12:25', subject: 'Биология', teacher: 'Каженов Р.', room: '242' },
-      { time: '12:45-13:25', subject: 'Биология', teacher: 'Каженов Р.', room: '242' },
-      { time: '13:45-14:25', subject: 'Қоғамға қызмет', teacher: 'Қонақбаева А.', room: '243' },
-      { time: '15:25-16:05', subject: 'Improve Your English', teacher: 'Темиргазиева С.', room: '204' },
-      { time: '16:10-16:50', subject: 'Improve Your English', teacher: 'Темиргазиева С.', room: '204' }
+      { id: 'thu1', time: '08:30-09:10', subject: 'Өнер', teacher: 'Кульбекова Ж.', room: '136' },
+      { id: 'thu2', time: '09:25-10:05', subject: 'Өнер', teacher: 'Кульбекова Ж.', room: '136' },
+      { id: 'thu3', time: '10:10-10:50', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '307' },
+      { id: 'thu4', time: '11:00-11:40', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '307' },
+      { id: 'thu5', time: '11:45-12:25', subject: 'Биология', teacher: 'Каженов Р.', room: '242' },
+      { id: 'thu6', time: '12:45-13:25', subject: 'Биология', teacher: 'Каженов Р.', room: '242' },
+      { id: 'thu7', time: '13:45-14:25', subject: 'Қоғамға қызмет', teacher: 'Қонақбаева А.', room: '243' },
+      { id: 'thu8', time: '15:25-16:05', subject: 'Improve Your English', teacher: 'Темиргазиева С.', room: '204' },
+      { id: 'thu9', time: '16:10-16:50', subject: 'Improve Your English', teacher: 'Темиргазиева С.', room: '204' }
     ],
     'Пятница': [
-      { time: '08:30-09:10', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '303' },
-      { time: '09:25-10:05', subject: 'Орыс тілі мен әд.', teacher: 'Унгаралиева Э.', room: '210' },
-      { time: '10:10-10:50', subject: 'Дүниежүзі тарихы', teacher: 'Иргалиев С.', room: '228' },
-      { time: '11:00-11:40', subject: 'Дүниежүзі тарихы', teacher: 'Иргалиев С.', room: '228' },
-      { time: '11:45-12:25', subject: 'Биология', teacher: 'Каженов Р.', room: '242' },
-      { time: '12:45-13:25', subject: 'Химия', teacher: 'Ишанова Г.', room: '125' },
-      { time: '13:45-14:25', subject: 'Ағылшын тілі', teacher: 'Темиргазиева С.', room: '241' },
-      { time: '14:35-15:15', subject: 'Ағылшын тілі', teacher: 'Темиргазиева С.', room: '241' }
+      { id: 'fri1', time: '08:30-09:10', subject: 'Математика', teacher: 'Нурмаганбетова Б.', room: '303' },
+      { id: 'fri2', time: '09:25-10:05', subject: 'Орыс тілі мен әд.', teacher: 'Унгаралиева Э.', room: '210' },
+      { id: 'fri3', time: '10:10-10:50', subject: 'Дүниежүзі тарихы', teacher: 'Иргалиев С.', room: '228' },
+      { id: 'fri4', time: '11:00-11:40', subject: 'Дүниежүзі тарихы', teacher: 'Иргалиев С.', room: '228' },
+      { id: 'fri5', time: '11:45-12:25', subject: 'Биология', teacher: 'Каженов Р.', room: '242' },
+      { id: 'fri6', time: '12:45-13:25', subject: 'Химия', teacher: 'Ишанова Г.', room: '125' },
+      { id: 'fri7', time: '13:45-14:25', subject: 'Ағылшын тілі', teacher: 'Темиргазиева С.', room: '241' },
+      { id: 'fri8', time: '14:35-15:15', subject: 'Ағылшын тілі', teacher: 'Темиргазиева С.', room: '241' }
     ]
   };
 
   useEffect(() => {
-    const savedHomework = JSON.parse(localStorage.getItem('homework'));
-    if (savedHomework) setHomework(savedHomework);
-
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+  
+      if (currentUser) {
+        const docRef = doc(db, "homeworks", currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setHomework(docSnap.data());
+        }
+      }
     });
+  
     return () => unsubscribe();
   }, []);
+  
 
   const signUp = async () => {
     try {

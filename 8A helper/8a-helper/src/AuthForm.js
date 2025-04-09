@@ -1,33 +1,50 @@
-import { useState } from "react";
-import { auth } from "./firebase"; // Импортируем auth из firebase.js
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import React, { useState } from "react";
+import'./App.css';
+import'./index.css';
+import { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "./firebase"; // Импортируем Firebase auth функции
 
 export default function AuthForm() {
-  const [email, setEmail] = useState(""); // Стейт для хранения email
-  const [password, setPassword] = useState(""); // Стейт для хранения пароля
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Функция для регистрации пользователя
   const signUp = async () => {
+    setLoading(true);
+    setError(null);
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       console.log("Регистрация успешна");
+      setEmail("");
+      setPassword("");
     } catch (error) {
       console.error("Ошибка регистрации: ", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Функция для входа пользователя
   const signIn = async () => {
+    setLoading(true);
+    setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       console.log("Вход успешен");
+      setEmail("");
+      setPassword("");
     } catch (error) {
       console.error("Ошибка входа: ", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div>
+      {loading && <p>Загрузка...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
       <input
         type="email"
         placeholder="Email"
@@ -40,8 +57,8 @@ export default function AuthForm() {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />
-      <button onClick={signUp}>Регистрация</button>
-      <button onClick={signIn}>Войти</button>
+      <button onClick={signUp} disabled={loading}>Регистрация</button>
+      <button onClick={signIn} disabled={loading}>Войти</button>
     </div>
   );
 }
